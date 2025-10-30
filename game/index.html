@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>mk.js</title>
+    <script src="src/movement.js"></script>
+    <script src="src/mk.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body>
+    <table>
+    <thead>
+        <th>
+            Arena
+        </th>
+        <th>
+            Webcam
+        </th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div id="parent">
+                    <div id="utils">
+                        <div id="player1Name" class="playerName">Sub-Zero</div>
+                        <div id="player1LifeBar" class="lifebar"><div class="life" id="player1Life"></div></div>
+                        <div id="player2Name" class="playerName">Kano</div>
+                        <div id="player2LifeBar" class="lifebar"><div class="life" id="player2Life"></div></div>
+                    </div>
+                    <div id="arena">
+                    </div>
+                    <div id="loading">
+                        <span class="loadingLabel">Carregando...</span>
+                    </div>
+                </div>
+            </td>
+            <td id="webcam-parent">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <h1>Instruções</h1>
+                <p>
+                    <ul class="instructions-list">
+                        <li>Para jogar com reconhecimento de gestos você precisa do Google Chrome 22+ ou Firefox 19+.</li>
+                        <li>Escolha um local adequado para posicionar seu computador. Recomendo usar uma parede branca como fundo e roupas escuras para melhor contraste.</li>
+                        <li>Fique fora do alcance da webcam. Ela precisa capturar o fundo atrás de você primeiro.</li>
+                        <li>Permita que a página web use sua webcam.</li>
+                        <li>Se a tela da webcam estiver preta, você pode começar a jogar, caso contrário reinicie e tente novamente.</li>
+                        <li>Fique a cerca de 2,5 metros de distância do seu computador no meio da zona de visualização.</li>
+                        <li>Para andar para a esquerda, fique no lado esquerdo da região de visualização da webcam e à direita se quiser andar para a direita. Se quiser parar, volte para o meio.</li>
+                        <li>Levante seu braço esquerdo ou direito para socar.</li>
+                        <li>Levante sua perna esquerda ou direita para chutar.</li>
+                        <li>Agache e seu lutador também irá agachar.</li>
+                        <li>Agache e soque para um ataque de soco baixo agachado.</li>
+                        <li>Divirta-se!</li>
+                    </ul>
+                </p>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+    <div class="manual">
+    </div>
+    <script>
+        (function () {
+
+            function $(id) {
+                return document.getElementById(id);
+            }
+
+            function setLife(container, life) {
+                container.style.width = life + '%';
+            }
+
+            document.onkeydown = function (e) {
+                if (e.keyCode === 32) {
+                    window.location.reload();
+                }
+            };
+
+            (function () {
+                
+                var startGame = function () {
+                    $('loading').style.visibility = 'hidden';
+                    $('arena').style.visibility = 'visible';
+                    $('utils').style.visibility = 'visible';
+                };
+                
+                var options = {
+                    arena: {
+                        container: document.getElementById('arena'),
+                        arena: mk.arenas.types.THRONE_ROOM
+                    },
+                    fighters: [{ name: 'Subzero' }, { name: 'Kano' }],
+                    callbacks: {
+                        attack: function (f, o, l) {
+                            if (o.getName() === 'kano') {
+                                setLife($('player2Life'), o.getLife());
+                            } else {
+                                setLife($('player1Life'), o.getLife());
+                            }
+                        }
+
+                    },
+                    isHost: /^(sim|yes)$/i.test(prompt('Você vai ser o host?')),
+                    gameName: prompt('Digite o nome do jogo:'),
+                    gameType: 'network'
+                };
+
+                function startNewGame() {
+                    mk.start(options).ready(function () {
+                        startGame();
+                    });
+                }
+                
+                startNewGame();
+                
+            }());
+
+        }());
+    </script>
+</body>
+</html>
