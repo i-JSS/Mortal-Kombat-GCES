@@ -1,7 +1,14 @@
-FROM nginx:alpine
+FROM node:20-alpine
 
-COPY . /usr/share/nginx/html
+WORKDIR /usr/src/app
+
+RUN npm install -g live-server
+
+COPY . .
 
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+ENV HOST=0.0.0.0
+ENV PORT=8080
+
+CMD ["sh", "-c", "live-server /usr/src/app/game --host=0.0.0.0 --port=8080 --entry-file=index.html"]
