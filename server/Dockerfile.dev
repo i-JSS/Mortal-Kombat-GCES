@@ -1,0 +1,15 @@
+FROM node:18
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install -g nodemon && npm install
+
+COPY . .
+
+ENV NODE_ENV=development
+ENV PORT=55555
+
+EXPOSE 55555
+
+CMD ["nodemon", "server.js"]
