@@ -1,27 +1,38 @@
-version: "3.8"
+version: '3.8'
 
 services:
   server:
     build:
       context: ./server
       dockerfile: Dockerfile.dev
-    container_name: mkjs_server
-    ports:
-      - "55555:55555"
+    container_name: mkjs_server_dev
+    environment:
+      - NODE_ENV=development
+      - PORT=55555
     volumes:
       - ./server:/usr/src/app/server
-    environment:
-      - PORT=55555
-    command: npx nodemon --watch . --ext js,json server.js
+      - /usr/src/app/node_modules
+    networks:
+      - mkjs_network
 
   client:
     build:
       context: ./game
       dockerfile: Dockerfile.dev
-    container_name: mkjs_client
-    ports:
-      - "8080:8080"
+    container_name: mkjs_client_dev
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
     volumes:
       - ./game:/usr/src/app/game
+      - /usr/src/app/node_modules
+    ports:
+      - "8080:8080"
     depends_on:
       - server
+    networks:
+      - mkjs_network
+
+networks:
+  mkjs_network:
+    driver: bridge
