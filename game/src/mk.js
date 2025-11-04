@@ -467,7 +467,7 @@
   };
 
   mk.controllers.Network.prototype.Transports.socketio.init = function() {
-    this._socket = io.connect();
+    this._socket = io.connect('http://localhost:55555');
   };
 
   mk.controllers.Network.prototype.Transports.socketio.emit = function() {
