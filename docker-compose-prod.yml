@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    container_name: mkjs_server_prod
+    environment:
+      - NODE_ENV=production
+      - PORT=55555
+
+  game:
+    build:
+      context: ./game
+      dockerfile: Dockerfile.prod
+    container_name: mkjs_client_prod
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
