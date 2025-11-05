@@ -1,3 +1,5 @@
+console.log("server.js OK")
+
 var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
@@ -5,12 +7,14 @@ var express = require('express'),
     GameCollection = require('./games.js').GameCollection,
     games = new GameCollection();
 
-io.set('origins', 'http://localhost:8080:*');
+io.set('origins', 'http://127.0.0.1:8080 http://localhost:8080:*');
 io.set('log level', 1);
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
     next();
 });
 
@@ -28,31 +32,6 @@ var Requests = {
     JOIN_GAME: 'join-game'
 };
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-    user: 'docker',
-    host: 'postgresql',
-    database: 'mkjs',
-    password: 'docker',
-    port: 5432,
-});
-
-async function query(text, params) {
-    const client = await pool.connect();
-    try {
-        const res = await client.query(text, params);
-        return res;
-    } finally {
-        client.release();
-    }
-}
-
-query('INSERT INTO games (game_name) VALUES ($1) ON CONFLICT (game_id) DO NOTHING', ["TOTOLA"])
-    .then(() => console.log(`[DB] Jogo ${"totola"} inserido no banco`))
-    .catch(err => console.error(`[DB ERROR]`, err));
-
-
 io.sockets.on('connection', function (socket) {
     console.log('Client connected! Socket ID:', socket.id);
 
@@ -60,11 +39,6 @@ io.sockets.on('connection', function (socket) {
         if (games.createGame(gameName)) {
             games.getGame(gameName).addPlayer(socket);
             socket.emit('response', Responses.SUCCESS);
-            console.log("CRIADO!")
-            query('INSERT INTO games (game_id) VALUES ($1) ON CONFLICT (game_id) DO NOTHING', [gameName])
-                .then(() => console.log(`[DB] Jogo ${gameName} inserido no banco`))
-                .catch(err => console.error(`[DB ERROR]`, err));
-
         } else {
             socket.emit('response', Responses.GAME_EXISTS);
         }

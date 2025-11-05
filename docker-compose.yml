@@ -31,13 +31,15 @@ services:
       - NODE_ENV=development
       - PORT=55555
     volumes:
-      - ./server:/usr/src/app/server
-      - /usr/src/app/server/node_modules
+      - ./server:/usr/src/app/server/
+      - /usr/src/app/node_modules
     depends_on:
       postgresql:
         condition: service_healthy
     networks:
       - mkjs_network
+    ports:
+      - "55555:55555"
 
   client:
     build:
@@ -49,7 +51,6 @@ services:
       - PORT=8080
     volumes:
       - ./game:/usr/src/app/game
-      - /usr/src/app/node_modules
     ports:
       - "8080:8080"
     depends_on:

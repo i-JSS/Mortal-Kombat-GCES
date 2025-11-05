@@ -1,3 +1,5 @@
+console.log("games.js OK")
+
 const { Pool } = require('pg');
 
 const pool = new Pool({
@@ -31,8 +33,8 @@ function Game(id, gameCollection) {
     this._gameCollection = gameCollection;
     this._players = [];
 
-    query('INSERT INTO games (game_id) VALUES ($1) ON CONFLICT (game_id) DO NOTHING', [this._id])
-        .then(() => console.log(`[DB] Jogo ${this._id} inserido no banco`))
+    query('INSERT INTO games (game_name) VALUES ($1)', [this._id])
+        .then(() => console.log(`[DB-Games] ${this._id} - Successfully inserted`))
         .catch(err => console.error(`[DB ERROR]`, err));
 }
 
@@ -45,17 +47,16 @@ Game.prototype.addPlayer = function (p) {
     if (this._players.length > 1) {
         return false;
     }
-
     this._players.push(p);
-    query('INSERT INTO players (socket_id, game_id) VALUES ($1, $2)', [p.id, this._id])
-        .then(() => console.log(`[DB] Jogador ${p.id} inserido no banco`))
+
+    query('INSERT INTO players (socket_id) VALUES ($1)', [p.id])
+        .then(() => console.log(`[DB-Players] ${p.id} - Successfully inserted`))
         .catch(err => console.error(`[DB ERROR]`, err));
 
     if (this._players.length > 1) {
         this._addHandlers();
         this._players[0].emit(Messages.PLAYER_CONNECTED, 0);
     }
-
     return true;
 };
 
@@ -92,14 +93,11 @@ Game.prototype._addHandlers = function () {
 
 Game.prototype.endGame = function (playerOut) {
     if (!this._players.length) return;
-
-
     var opponent = +!playerOut;
     opponent = this._players[opponent];
     this._players = [];
     opponent.disconnect();
     this._gameCollection.removeGame(this._id);
-
 };
 
 

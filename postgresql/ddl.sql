@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS games (
 
 CREATE TABLE IF NOT EXISTS players (
     player_id SERIAL PRIMARY KEY,
-    player_id TEXT NOT NULL,
-    game_id TEXT REFERENCES games(game_id)
+    socket_id TEXT NOT NULL,
+    connected_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
