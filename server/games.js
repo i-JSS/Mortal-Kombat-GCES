@@ -1,3 +1,23 @@
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    user: 'docker',
+    host: 'postgresql',
+    database: 'mkjs',
+    password: 'docker',
+    port: 5432,
+});
+
+async function query(text, params) {
+    const client = await pool.connect();
+    try {
+        const res = await client.query(text, params);
+        return res;
+    } finally {
+        client.release();
+    }
+}
+
 var Messages = {
   EVENT: 'event',
   LIFE_UPDATE: 'life-update',
@@ -7,25 +27,36 @@ var Messages = {
 
 
 function Game(id, gameCollection) {
-  this._id = id;
-  this._gameCollection = gameCollection;
-  this._players = [];
+    this._id = id;
+    this._gameCollection = gameCollection;
+    this._players = [];
+
+    query('INSERT INTO games (game_id) VALUES ($1) ON CONFLICT (game_id) DO NOTHING', [this._id])
+        .then(() => console.log(`[DB] Jogo ${this._id} inserido no banco`))
+        .catch(err => console.error(`[DB ERROR]`, err));
 }
+
 
 Game.prototype.getId = function () {
   return this._id;
 };
 
 Game.prototype.addPlayer = function (p) {
-  if (this._players.length > 1) {
-    return false;
-  }
-  this._players.push(p);
-  if (this._players.length > 1) {
-    this._addHandlers();
-    this._players[0].emit(Messages.PLAYER_CONNECTED, 0);
-  }
-  return true;
+    if (this._players.length > 1) {
+        return false;
+    }
+
+    this._players.push(p);
+    query('INSERT INTO players (socket_id, game_id) VALUES ($1, $2)', [p.id, this._id])
+        .then(() => console.log(`[DB] Jogador ${p.id} inserido no banco`))
+        .catch(err => console.error(`[DB ERROR]`, err));
+
+    if (this._players.length > 1) {
+        this._addHandlers();
+        this._players[0].emit(Messages.PLAYER_CONNECTED, 0);
+    }
+
+    return true;
 };
 
 Game.prototype._addHandlers = function () {
@@ -60,13 +91,17 @@ Game.prototype._addHandlers = function () {
 };
 
 Game.prototype.endGame = function (playerOut) {
-  if (!this._players.length) return;
-  var opponent = +!playerOut;
-  opponent = this._players[opponent];
-  this._players = [];
-  opponent.disconnect();
-  this._gameCollection.removeGame(this._id);
+    if (!this._players.length) return;
+
+
+    var opponent = +!playerOut;
+    opponent = this._players[opponent];
+    this._players = [];
+    opponent.disconnect();
+    this._gameCollection.removeGame(this._id);
+
 };
+
 
 function GameCollection() {
   this._games = {};
