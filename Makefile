@@ -26,3 +26,8 @@ prod-games:
 
 prod-players:
 	docker exec -it mkjs_postgresql psql -U docker -d mkjs -c "SELECT * FROM players;"
+
+#------------------------------
+
+generate-ssl:
+	mkdir -p nginx/certs && cd nginx/certs && openssl genrsa -out server.key 2048 && openssl req -new -x509 -key server.key -out server.crt -days 365 -subj "/C=BR/ST=DF/L=Brasilia/O=MKJS/OU=Dev/CN=localhost"
