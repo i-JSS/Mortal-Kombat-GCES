@@ -1,5 +1,6 @@
 stages:
   - build
+  - lint
 
 build:
   stage: build
@@ -11,3 +12,10 @@ build:
     DOCKER_TLS_CERTDIR: ""
   script:
     - docker compose -f docker-compose.yml build
+
+lint:
+  stage: lint
+  image: node:20-alpine
+  script:
+    - cd server && npm ci && npx eslint . --fix
+    - cd ../game && npm ci && npx eslint . --fix
