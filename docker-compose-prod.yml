@@ -1,14 +1,41 @@
 version: "3.8"
 
 services:
+  postgresql:
+    image: bitnami/postgresql:latest
+    container_name: mkjs_postgresql
+    env_file:
+      - .env.prod
+    volumes:
+      - mkjs_pg_data_prod:/bitnami/postgresql
+      - ./postgresql/:/docker-entrypoint-initdb.d
+    networks:
+      - mkjs_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U docker -d mkjs" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
   server:
     build:
       context: ./server
       dockerfile: Dockerfile.prod
     container_name: mkjs_server_prod
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=55555
+    volumes:
+      - ./server:/usr/src/app/server/
+      - /usr/src/app/node_modules
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - mkjs_network
+    ports:
+      - "55555:55555"
 
   game:
     build:
@@ -21,3 +48,12 @@ services:
       - "8080:80"
     depends_on:
       - server
+    networks:
+      - mkjs_network
+
+networks:
+  mkjs_network:
+    driver: bridge
+
+volumes:
+  mkjs_pg_data_prod:
