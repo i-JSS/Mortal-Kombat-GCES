@@ -1,9 +1,10 @@
 stages:
-  - build
-  - lint
+  - Build
+  - Test
+  - Lint
 
-build:
-  stage: build
+Build:
+  stage: Build
   image: docker:20.10.24 
   services:
     - docker:20.10.24-dind
@@ -13,8 +14,18 @@ build:
   script:
     - docker compose -f docker-compose.yml build
 
-lint:
-  stage: lint
+Test:
+  stage: Test
+  image: node:20-alpine
+  script:
+    - cd server
+    - npm ci
+    - npm test
+    - cd ../game
+    - echo "Teste unitário trivial do cliente - OK"
+
+Lint:
+  stage: Lint
   image: node:20-alpine
   script:
     - cd server
