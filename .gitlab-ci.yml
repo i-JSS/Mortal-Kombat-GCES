@@ -22,7 +22,7 @@ Test:
     - npm ci
     - npm test
     - cd ../game
-    - echo "Teste unitário trivial do cliente - OK"
+    - echo "Teste unitário do filters.threshold como não tem node no client, rodou junto do server!"
 
 Lint:
   stage: Lint

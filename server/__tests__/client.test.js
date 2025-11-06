@@ -1,4 +1,4 @@
-require('../src/movement.js');
+require('../../game/src/movement.js');
 
 describe('Filters', () => {
     test('threshold simples', () => {
