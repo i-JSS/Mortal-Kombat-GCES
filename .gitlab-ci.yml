@@ -17,5 +17,6 @@ lint:
   stage: lint
   image: node:20-alpine
   script:
-    - cd server && npm ci && npx eslint . --fix
-    - cd ../game && npm ci && npx eslint . --fix
+    - cd server
+    - npm ci
+    - npx eslint .
