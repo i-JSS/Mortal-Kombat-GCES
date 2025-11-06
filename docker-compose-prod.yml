@@ -24,18 +24,13 @@ services:
       dockerfile: Dockerfile.prod
     container_name: mkjs_server_prod
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=55555
-    volumes:
-      - ./server:/usr/src/app/server/
-      - /usr/src/app/node_modules
     depends_on:
       postgresql:
         condition: service_healthy
     networks:
       - mkjs_network
-    ports:
-      - "55555:55555"
 
   game:
     build:
@@ -44,10 +39,21 @@ services:
     container_name: mkjs_client_prod
     environment:
       - NODE_ENV=production
+    networks:
+      - mkjs_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: mkjs_nginx_prod
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     depends_on:
+      - postgresql
       - server
+      - game
     networks:
       - mkjs_network
 
