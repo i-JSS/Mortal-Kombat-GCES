@@ -481,5 +481,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     };
 
     w.Movement = Movement;
-
+    w.Filters = Filters;
 }(window));
