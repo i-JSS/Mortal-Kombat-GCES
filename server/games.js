@@ -33,9 +33,14 @@ function Game(id, gameCollection) {
     this._gameCollection = gameCollection;
     this._players = [];
 
-    query('INSERT INTO games (game_name) VALUES ($1)', [this._id])
-        .then(() => console.log(`[DB-Games] ${this._id} - Successfully inserted`))
-        .catch(err => console.error(`[DB ERROR]`, err));
+    (async () => {
+        try {
+            await query('INSERT INTO games (game_name) VALUES ($1)', [this._id]);
+            console.log(`[DB-Games] ${this._id} - Successfully inserted`);
+        } catch (err) {
+            console.error(`[DB ERROR] Falha ao inserir jogo ${this._id}:`, err.message);
+        }
+    })();
 }
 
 
@@ -43,15 +48,18 @@ Game.prototype.getId = function () {
     return this._id;
 };
 
-Game.prototype.addPlayer = function (p) {
+Game.prototype.addPlayer = async function (p) {
     if (this._players.length > 1) {
         return false;
     }
     this._players.push(p);
 
-    query('INSERT INTO players (socket_id) VALUES ($1)', [p.id])
-        .then(() => console.log(`[DB-Players] ${p.id} - Successfully inserted`))
-        .catch(err => console.error(`[DB ERROR]`, err));
+    try {
+        await query('INSERT INTO players (socket_id) VALUES ($1)', [p.id]);
+        console.log(`[DB-Players] ${p.id} - Successfully inserted`);
+    } catch (err) {
+        console.error(`[DB ERROR] Falha ao inserir jogador ${p.id}:`, err.message);
+    }
 
     if (this._players.length > 1) {
         this._addHandlers();
@@ -127,3 +135,4 @@ GameCollection.prototype.removeGame = function (id) {
 };
 
 exports.GameCollection = GameCollection;
+exports.Game = Game;
