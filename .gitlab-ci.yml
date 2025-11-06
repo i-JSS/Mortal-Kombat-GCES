@@ -2,6 +2,7 @@ stages:
   - Build
   - Test
   - Lint
+  - Deploy
 
 Build:
   stage: Build
@@ -31,3 +32,18 @@ Lint:
     - cd server
     - npm ci
     - npx eslint .
+
+Deploy:
+  stage: Deploy
+  image: docker:25
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_JOB_TOKEN | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker compose -f docker-compose-prod.yml up --build -d
+    - docker compose -f docker-compose-prod.yml ps
+  only:
+    - main
+  tags:
+    - docker
