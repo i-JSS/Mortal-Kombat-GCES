@@ -45,5 +45,3 @@ Deploy:
     - docker compose -f docker-compose-prod.yml ps
   only:
     - main
-  tags:
-    - docker
