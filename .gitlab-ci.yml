@@ -1,0 +1,22 @@
+stages:
+  - build
+  - lint
+
+build:
+  stage: build
+  image: docker:20.10.24 
+  services:
+    - docker:20.10.24-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker compose -f docker-compose.yml build
+
+lint:
+  stage: lint
+  image: node:20-alpine
+  script:
+    - cd server
+    - npm ci
+    - npx eslint .
