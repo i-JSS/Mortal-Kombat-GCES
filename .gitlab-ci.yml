@@ -41,8 +41,8 @@ Deploy:
   before_script:
     - echo $CI_JOB_TOKEN | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/server:latest -f server/Dockerfile.prod .
-    - docker build -t $CI_REGISTRY_IMAGE/game:latest -f game/Dockerfile.prod .
+    - docker build -t $CI_REGISTRY_IMAGE/server:latest -f server/Dockerfile.prod server
+    - docker build -t $CI_REGISTRY_IMAGE/game:latest -f game/Dockerfile.prod game
 
     - docker push $CI_REGISTRY_IMAGE/server:latest
     - docker push $CI_REGISTRY_IMAGE/game:latest
