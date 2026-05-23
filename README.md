@@ -8,6 +8,8 @@ A aplicação em estudo é um jogo de luta (mk.js) implementado com Backend em N
 
 O repositório da aplicação está disponível no presente repositorio
 
+![](images/deploy.jpeg)
+![](images/banco.jpeg)
 
 # Etapas deste Trabalho
 
